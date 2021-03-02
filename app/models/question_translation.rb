@@ -1,0 +1,2 @@
+class QuestionTranslation < ApplicationRecord
+end

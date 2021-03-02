@@ -10,7 +10,7 @@ Things you may want to cover:
 
 * System dependencies
   그레이프, 디바이스, jwt, faraday등을 사용합니다. 
-  
+```
   ruby '3.0.0'
   gem 'grape'
   gem 'devise'
@@ -24,8 +24,9 @@ Things you may want to cover:
   gem 'capistrano3-puma' 
   gem 'capistrano-secrets-yml', '~> 1.0.0'
   gem 'mysql2', '~> 0.5.3'
-  # Make sure that `gem install mysql2 -v '0.5.3' --source 'https://rubygems.org/'`
-
+  
+  - Make sure that `gem install mysql2 -v '0.5.3' --source 'https://rubygems.org/'`
+```
 * Configuration
 
 * Database creation

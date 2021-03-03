@@ -44,6 +44,25 @@ module Grapes
         end
 
         params do 
+          #not requiring..
+        end
+        post :validate do 
+          if current_user
+            return {
+              success: true,
+              jwt_token: User.create_jwt_token(current_user.id),
+              user: current_user
+            }
+          else
+            return {
+              success: false,
+              jwt_token: nil,
+              user: nil
+            }
+          end
+        end
+
+        params do 
           optional :nick_name, type: String
           optional :birth, type: Integer
         end

@@ -5,9 +5,9 @@ module Grapes
 
       resource :memo do 
         params do 
-          optional :yyyymmdd, type: Integer #20210229
+          optional :yyyymmdd, type: String #20210229
         end
-        get do 
+        get do           
           #get the question
           question_tranlsation = nil
           if params[:yyyymmdd]
@@ -16,24 +16,29 @@ module Grapes
             #get the question of utc!
             time = Time.now.strftime("%Y%m%d").to_i
             question = Question.find_by(date: time)
-            question_id = question.id
-
-            if current_user
-              user_setting = UserSetting.where(user_id: current_user.id).last
-              question_translation = nil
-              if user_setting
-                lang = user_setting.lang
-                question_translation = QuestionTranslation.where(question_id: question_id).where(lang: lang).last
-              end
-            end 
           end
 
+          unless question
+            question = Question.last
+          end
+
+          question_id = question.id
+          
+          if current_user
+            user_setting = UserSetting.where(user_id: current_user.id).last
+            question_translation = nil
+            if user_setting
+              lang = user_setting.lang
+              question_translation = QuestionTranslation.where(question_id: question_id).where(lang: lang).last
+            end
+          end 
+ 
           if current_user 
             memo = Memo.where(user_id: current_user.id, question_id: question.id).last
           else
             memo = nil
           end 
-
+          
           return {
             question: question,
             question_translation: question_tranlsation,
@@ -43,30 +48,40 @@ module Grapes
         end
 
         params do 
-          requires :yyyymmdd, type: Integer #20210229 #like this!
+          optional :question_id, type: Integer #20210229 #like this!
         end
         get :list do 
-          if params[:yyyymmdd]
-            question = Question.find_by(date: params[:yyyymmdd])
+          if params[:question_id]
+            question = Question.find_by(id: params[:question_id])
             question_id = question.id
           else
             time = Time.now.strftime("%Y%m%d").to_i
             question = Question.find_by(date: time)
-
             question_id = question.id
           end
 
-          memos = Memo.where(question_id: question_id).all
+          memos = Memo.where(question_id: question_id).all.first(5)
           #number of likes should be included in memo
           user_ids = memos.map(&:user_id)
           users = User.select(:id, :nick_name).where(id: user_ids)
+          likes = Like.where(user_id: current_user.id, memo_id: memos.map(&:id))
 
+          #my liked memo?
           list = memos.map do |memo|
             user = users.find{|user| user.id == memo.user_id}
+            my_like = likes.find{|like| like.memo_id == memo.id}
+
             memo = memo.as_json
             memo["user"] = user
+
+            memo["do_i_like"] = true if my_like 
             memo
           end
+
+          return {
+            success: true,
+            list: list
+          }
         end
 
         params do 
@@ -104,8 +119,10 @@ module Grapes
         end
         post :create do 
           #user authentication?
+          puts "before auth?"
           authenticate!
 
+          puts "#{params.as_json}===?"
           begin
             Memo.create!({
               user_id: current_user.id,
@@ -201,6 +218,36 @@ module Grapes
               user_id: current_user.id,
               memo_id: params[:id]
             })
+          end
+
+          count = Like.where(memo_id: params[:id]).count
+
+          memo.likes = count
+          memo.save!
+
+          return {
+            success: true            
+          }
+        end
+
+        params do 
+          requires :id, type: Integer
+        end
+        post :unlike do 
+          authenticate!
+
+          memo = Memo.find_by(id: params[:id])
+          unless memo.is_public 
+            return {
+              success: false,
+              message: "not open to be liked"
+            }
+          end
+
+          like = Like.where(user_id: current_user.id).where(memo_id: params[:id]).last
+
+          if like
+            like.delete
           end
 
           count = Like.where(memo_id: params[:id]).count

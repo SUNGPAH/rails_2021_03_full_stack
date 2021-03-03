@@ -14,6 +14,31 @@ class User < ApplicationRecord
     return token
   end
 
+  def self.test
+    1.upto(20) do |n|
+      User.create!({
+        email: SecureRandom.hex(6) + "@gmail.com",
+        password: "123123",
+        nick_name: SecureRandom.hex(6), 
+        birth: 880103,
+        timezone: "Asia/Seoul",
+        state: "active",
+      })
+    end
+
+    User.all.each do |user|
+      begin
+        Memo.create!({
+          user_id: user.id,
+          content: "asldkfjasldkfj",
+          question_id: 1,
+          is_public: true
+        })
+      rescue
+      end
+    end
+  end
+
   def self.jwt_validate(token)
     if ["", nil, "null", "undefined"].include? token
       return nil

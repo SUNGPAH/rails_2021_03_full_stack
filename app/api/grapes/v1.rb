@@ -6,7 +6,7 @@ module Grapes
         if @current_user
           return @current_user
         end
-        
+
         if request.headers["Authorization"]
           jwt_token = request.headers["Authorization"].split(" ").last
           user = User.jwt_validate(jwt_token)

@@ -57,6 +57,15 @@ module Grapes
             memo = nil
           end 
           
+          date = question.date.to_s
+          question = question.as_json
+
+          yyyy = date[0..3] 
+          mm = date[4..5]
+          dd = date[6..7]
+
+          question["date_str"] = Time.new(yyyy.to_s, mm.to_s, dd.to_s, "0", "0", "0", "+09:00").strftime("%Y %B, %d")
+
           return {
             question: question,
             question_translation: question_tranlsation,

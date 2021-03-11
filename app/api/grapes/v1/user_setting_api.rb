@@ -3,6 +3,16 @@ module Grapes
 		class UserSettingAPI < Grapes::API
       helpers AuthHelpers
       resource :user_setting do 
+        get do 
+          authenticate!
+
+          user_setting = UserSetting.where(user_id: current_user.id).last
+          return {
+            success: true,
+            user_setting: user_setting,
+          }
+        end
+
         params do 
           optional :lang, type: String #en, kor, jap, chi.. 
           optional :is_reminder_on, type: Boolean

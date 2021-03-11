@@ -39,6 +39,8 @@ module TestModule
   end
 
   def memo
+
+    #grape  -- 
     user_id = 1 
     jwt_token = User.create_jwt_token(user_id)
     host = "http://localhost:3000"
@@ -65,7 +67,7 @@ module TestModule
       is_public: false
     }
     result = TestModule::request(host, url, jwt_token, payload)
-
+    
     #modify -2 # is_public
     payload = {
       memo_id: Memo.last.id,

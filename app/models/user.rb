@@ -47,6 +47,7 @@ class User < ApplicationRecord
     begin
       decoded_token = JWT.decode token, ENV["GENERATED_SECRET_KEY"], true, { algorithm: 'HS256' }
       user_id = decoded_token[0]["user_id"]
+      
       user = User.find_by(id:user_id)
       return user
     rescue => e

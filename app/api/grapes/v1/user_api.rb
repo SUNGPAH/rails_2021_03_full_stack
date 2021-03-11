@@ -22,6 +22,7 @@ module Grapes
         end
         post :authenticate do 
           user = User.where(email: params[:email]).last
+
           if user
             if user.valid_password?(params[:password])
               jwt_token = User.create_jwt_token(user.id)
@@ -84,6 +85,9 @@ module Grapes
           }
         end
 
+        #/api/v1/user/password/reset
+        #post
+        #{email:email} - payload
         namespace :password do 
           params do 
             requires :email, type: String
@@ -102,10 +106,13 @@ module Grapes
               :exp => (Time.now + 30.minutes).to_i
             }
 
-            token = JWT.encode payload, ENV["GENERATED_SECRET_KEY"], 'HS256'
+            token = JWT.encode payload, ENV["GENERATED_SECRET_KEY"], 'HS256' #!!!
             user.reset_password_token = token
             user.reset_password_sent_at = Time.now
             user.save
+
+            #email! 
+            #mailgun. 
 
             return {
               success: true,

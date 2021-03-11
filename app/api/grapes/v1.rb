@@ -22,9 +22,7 @@ module Grapes
       def authenticate!
         error!('401 Unauthorized', 401) unless current_user
     
-        #여기서 레코드를 만들어 보자.
-        #api 분석을 위해서 간단히 해볼 수 있는 것 부터.
-        beginning_of_day = Time.now.in_time_zone("Asia/Seoul").beginning_of_day #구지 이거로 되어 있나 근데.
+        beginning_of_day = Time.now.in_time_zone("Asia/Seoul").beginning_of_day
         user_id = current_user.id
     
         begin

@@ -2,12 +2,30 @@ module Grapes
   module V1
 		class MemoAPI < Grapes::API
       helpers AuthHelpers
-
+      
+      #localhost:3000/api/v1/memo/card/call
       resource :memo do 
+
+        namespace :card do 
+          get "call" do
+            return {
+              success: true,
+              message: "gogo"
+            }
+          end
+        end
+
+        #Memo
+        #NewMemo
+        #get, post
+        #delete
+        #post
+        #put
+
         params do 
           optional :yyyymmdd, type: String #20210229
         end
-        get do           
+        get do #/memo/           
           #get the question
           question_tranlsation = nil
           if params[:yyyymmdd]
@@ -72,7 +90,7 @@ module Grapes
             my_like = likes.find{|like| like.memo_id == memo.id}
 
             memo = memo.as_json
-            memo["user"] = user
+            memo["user"] = {nick_name: user.nick_name}
 
             memo["do_i_like"] = true if my_like 
             memo
@@ -85,15 +103,20 @@ module Grapes
         end
 
         params do 
-          requires :yyyymm, type: Integer #202102 #like this!
+          requires :year, type: Integer #202102 #like this! or 0
+          requires :month, type: Integer
         end
         get :calendar do 
           authenticate!
           
-          #get the questions?
-          #or the eailer way to get is.. what the user left during this time.
-          yyyy = params[:yyyymm]/100
-          mm = params[:yyyymm] - yyyy*100
+          if params[:year] != 0 && params[:month] != 0
+            yyyy = params[:year]
+            mm = params[:month]
+          else
+            time = Time.now.in_time_zone("Asia/Seoul")
+            yyyy = time.strftime("%Y")
+            mm = time.strftime("%m")
+          end
           
           #timezone?
           #the beginning of month in user's timezone
@@ -103,11 +126,13 @@ module Grapes
           memos = Memo.where(user_id: current_user.id).where("created_at >= ?", start_time).where("created_at < ?", end_time)
           
           created_ats = memos.map{|memo|
-            memo.created_at.in_time_zone(current_user.timezone).strftime("%Y%m%d").to_i
+            memo.created_at.in_time_zone(current_user.timezone).strftime("%d").to_i
           }.uniq
 
           return {
             success: true,
+            yyyy: yyyy,
+            mm: mm,
             created_ats: created_ats
           }
         end
@@ -117,13 +142,11 @@ module Grapes
           requires :question_id, type: Integer
           requires :is_public, type: Boolean
         end
-        post :create do 
+        post :create do
           #user authentication?
-          puts "before auth?"
           authenticate!
 
-          puts "#{params.as_json}===?"
-          begin
+          begin #ActiveRecord, Table,
             Memo.create!({
               user_id: current_user.id,
               content: params[:content],

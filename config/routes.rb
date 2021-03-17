@@ -1,11 +1,7 @@
 Rails.application.routes.draw do
   devise_for :users
 
-  # lib? folder? 
-  mount Grapes::API => '/'
-  
-  # mount Twitter::API => '/'
-  # get "test/default"
+  mount Grapes::API => '/'  
 end
 
 #https://wwww.ringleplus.com/api/v1/memo/create

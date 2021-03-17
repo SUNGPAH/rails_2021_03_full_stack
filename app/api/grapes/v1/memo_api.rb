@@ -3,25 +3,7 @@ module Grapes
 		class MemoAPI < Grapes::API
       helpers AuthHelpers
       
-      #localhost:3000/api/v1/memo/card/call
       resource :memo do 
-
-        namespace :card do 
-          get "call" do
-            return {
-              success: true,
-              message: "gogo"
-            }
-          end
-        end
-
-        #Memo
-        #NewMemo
-        #get, post
-        #delete
-        #post
-        #put
-
         params do 
           optional :yyyymmdd, type: String #20210229
         end
